@@ -1,6 +1,8 @@
 import secrets
 from hashlib import sha256
 
+# resolver bug base58decode.
+
 class ChavePrivada():
     def __init__(self) -> None:
         self.ChaveHex = ''
@@ -70,8 +72,8 @@ class ChavePrivada():
             num = (num // TamBase)
             string = string + StringBase[sobra]
 
-        if self.base58decode(string[::-1]) != num_comeco:
-            print(f'Problema inesperado com checkagem de Base58! diferença: {self.base58decode(string[::-1])-num_comeco}')
+        #if self.base58decode(string[::-1]) != num_comeco:
+        #    print(f'Problema inesperado com checkagem de Base58! diferença: {self.base58decode(string[::-1])-num_comeco}')
         
         return string[::-1] # inverter
         
