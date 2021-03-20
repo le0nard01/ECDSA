@@ -7,7 +7,7 @@ initial_hash_values = [hex(int(modf(i**(1/2))[0] * (1 << 32)))
 initial_round_constants = [hex(int(modf(i**(1/3))[0] * (1 << 32))) 
                         for i in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311]]
 
-def encode(string): 
+def encode(string,tipo='str'): 
     def tobin(num): # transformar int em binario e preencher por 8, ou seja, tobin(10), 10 em binario é 1010, ele retornará 00001010.
         return ('00000000'[len(bin(num)[2:]):] 
                 + bin(num)[2:])
@@ -44,14 +44,13 @@ def encode(string):
             chunk32 = [ single_chunk[i:i+32] for i in range(0, len(single_chunk), 32) ] #Dividir em chunks de 32
 
             for i in range(0,64-len(chunk32)): chunk32.append('0'*32) # acrescentar 0 para o total de len() = 32
+
             for i in range(16,64):  #parte 1 calculo sha256
                 s0 = int(rotate(chunk32[i-15],7),2) ^ int(rotate(chunk32[i-15],18),2) ^ int(shift(chunk32[i-15],3),2)
                 s1 = int(rotate(chunk32[i-2],17),2) ^ int(rotate(chunk32[i-2],19),2) ^ int(shift(chunk32[i-2],10),2)
                 
                 chunk32[i] = bin((int(chunk32[i-16],2) + s0 + int(chunk32[i-7],2) + s1) % (2**32))[2:]
                 chunk32[i] = ('0'*(32-len(chunk32[i])))+chunk32[i]
-
-            
 
             for i in range(0,64):   #parte 2 calculo sha256
                 s1 = int(rotate(e,6),2) ^ int(rotate(e,11),2) ^ int(rotate(e,25),2)
@@ -84,7 +83,11 @@ def encode(string):
         hashfinal = formathash(hashfinal)
         return hashfinal
 
-    bits = [ tobin(ord(x)) for x in string ] # iterar a string passada e encaminhar pra funcao tobin
+    if tipo=='str':
+        bits = [ tobin(ord(x)) for x in string ] # iterar a string passada e encaminhar pra funcao tobin
+    elif tipo == 'hex':
+        string = string if string[0:2] != '0x' else string[2:]
+        bits = [ tobin(int(string[x-2:x],16)) for x in range(2,len(string)+1,2)]
 
     start_bits_len = len(''.join(bits)) #tamanho da string em bit
     

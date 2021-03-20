@@ -1,5 +1,6 @@
 import secrets
-from hashlib import sha256
+#from hashlib import sha256
+from sha256 import encode as sha256encode
 
 # resolver bug base58decode.
 
@@ -41,8 +42,10 @@ class ChavePrivada():
         if chavehex[:2] == '0x': chavehex[2:]
         chavehex = '80'+chavehex
         try:
-            shahash  = sha256(bytes.fromhex(chavehex)).hexdigest()
-            shahash2 = sha256(bytes.fromhex(shahash)).hexdigest()
+            #shahash  = sha256(bytes.fromhex(chavehex)).hexdigest()
+            #shahash2 = sha256(bytes.fromhex(shahash)).hexdigest()
+            shahash = sha256encode(chavehex,'hex')
+            shahash2 = sha256encode(shahash,'hex')
             checksum = bytes.fromhex(shahash2)[0:4].hex()
             self.ChaveWIF = self.base58encode('0x'+ chavehex.lower() + checksum.lower())
             self.CheckSum = checksum
@@ -69,17 +72,18 @@ class ChavePrivada():
 
         while num>=1:
             sobra = (num % TamBase) #MODULO int(chaveprivada) % 58
-            num = (num // TamBase)
+            num = (num // TamBase) # Divisão int
             string = string + StringBase[sobra]
 
-        #if self.base58decode(string[::-1]) != num_comeco:
-        #    print(f'Problema inesperado com checkagem de Base58! diferença: {self.base58decode(string[::-1])-num_comeco}')
+        if self.base58decode(string[::-1]) != num_comeco:
+            print(f'Problema inesperado com checkagem de Base58! diferença: {self.base58decode(string[::-1])-num_comeco}')
         
         return string[::-1] # inverter
         
 
     def base58decode(self,encoded):   # https://learnmeabitcoin.com/technical/base58
-        encoded = reversed(encoded) # inverter parametro base58. Já que a string é passada [::-1] invertida.
+        encoded = (encoded[::-1]) # inverter parametro base58. Já que a string é passada [::-1] invertida.
+
         StringBase = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
         TamBase = len(StringBase)
         
@@ -94,12 +98,11 @@ class ChavePrivada():
         for e,i in list(enumerate(encoded)): #Enumerate + Base58encodada invertido. 
             letra_value = StringBase.find(i) 
             num += letra_value*(TamBase**e) #numero = numero + index da letra * 58 ** enumerate
-
         return num
         
 
 #Checagem de funcionamento
 _checagem = ChavePrivada()
-_checagem.Gerar('0C28FCA386C7A227600B2FE50B7CAE11EC86D3BF1FBE471BE89827E19D72AA1D') #Essa é uma chave privada explanada para teste, não importe essa chave!
+_checagem.Gerar('0C28FCA386C7A227600B2FE50B7CAE11EC86D3BF1FBE471BE89827E19D72AA1D') #Essa é uma chave privada para teste. Não importe essa chave!
 if _checagem.ChaveWIF != '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ':
     print("Programa quebrado por algum erro inesperado, funcionamento invalido. Não use!")
