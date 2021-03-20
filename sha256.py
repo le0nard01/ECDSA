@@ -1,4 +1,7 @@
 from math import ceil,modf
+from hashlib import sha256 as shamodule
+from random import choice
+from string import ascii_lowercase
 
 initial_hash_values = [hex(int(modf(i**(1/2))[0] * (1 << 32))) 
                         for i in [2,3,5,7,11,13,17,19]]
@@ -11,12 +14,21 @@ def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-
         return ('00000000'[len(bin(num)[2:]):] 
                 + bin(num)[2:])
 
-    def rotate(data,tam): return data[len(data)-tam:]+data[0:len(data)-tam]
+    def rotate(data,tam): 
+        if type(data) == int:
+            data = bin(data)[2:]
+        return data[len(data)-tam:]+data[0:len(data)-tam] # função de rightrotate-bitwise, mover X digitos da direita para esquerda.
 
-    def shift(data,tam): return ('0'*(tam+1))+bin(int(data,2)>>tam)[2:]
+    def shift(data,tam): return ('0'*(tam+1))+bin(int(data,2)>>tam)[2:] # função rightshift-bitwise, igual >>, só que faz a conversão para int antes.
 
-    def s32(b):
-        return (('0'*32)[:32-len(b)]+b)
+    def s32(b): return (('0'*32)[:32-len(b)]+b) # preencher por 32, ou seja, s32, 10 em binario é 1010, ele retornará 00000000000000000000000000001010. 
+
+    def formathash(h): # formatar os hex, para todos hex ter 8 digitos incrementando 0's. E depois junta-los
+        final = ''
+        for i in h:
+            i=i[2:]
+            final += i if len(i) == 8 else ('0'*8)[:8-len(i)]+i
+        return final
 
     def message_Schedule(data):
         if len(data) % 512 != 0:
@@ -24,13 +36,17 @@ def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-
             return 0
 
         chunks = [ data[i:i+512] for i in range(0, len(data), 512) ] # Divide os chunks de 512
-        (h0,h1,h2,h3,h4,h5,h6,h7) = [bin(int(i[2:],16))[2:] for i in initial_hash_values] # cada letra é igual ao initial hash value
-        (h0,h1,h2,h3,h4,h5,h6,h7) = [('0'*32)[0:(32-len(i))]+i for i in (h0,h1,h2,h3,h4,h5,h6,h7)] # acrescentar 0 para o total de len() = 32
+        
+        (h0,h1,h2,h3,h4,h5,h6,h7) = [int(i[2:],16) for i in initial_hash_values] # cada letra é igual ao initial hash value
+        #(h0,h1,h2,h3,h4,h5,h6,h7) = [('0'*32)[0:(32-len(i))]+i for i in (h0,h1,h2,h3,h4,h5,h6,h7)] # acrescentar 0 para o total de len() = 32
+        
 
         for single_chunk in chunks:
             #x = """01101000011001010110110001101100 01101111001000000111011101101111 01110010011011000110010010000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000001011000 00110111010001110000001000110111 10000110110100001100000000110001 11010011101111010001000100001011 01111000001111110100011110000010 00101010100100000111110011101101 01001011001011110111110011001001 00110001111000011001010001011101 10001001001101100100100101100100 01111111011110100000011011011010 11000001011110011010100100111010 10111011111010001111011001010101 00001100000110101110001111100110 10110000111111100000110101111101 01011111011011100101010110010011 00000000100010011001101101010010 00000111111100011100101010010100 00111011010111111110010111010110 01101000011001010110001011100110 11001000010011100000101010011110 00000110101011111001101100100101 10010010111011110110010011010111 01100011111110010101111001011010 11100011000101100110011111010111 10000100001110111101111000010110 11101110111011001010100001011011 10100000010011111111001000100001 11111001000110001010110110111000 00010100101010001001001000011001 00010000100001000101001100011101 01100000100100111110000011001101 10000011000000110101111111101001 11010101101011100111100100111000 00111001001111110000010110101101 11111011010010110001101111101111 11101011011101011111111100101001 01101010001101101001010100110100 00100010111111001001110011011000 10101001011101000000110100101011 01100000110011110011100010000101 11000100101011001001100000111010 00010001010000101111110110101101 10110000101100000001110111011001 10011000111100001100001101101111 01110010000101111011100000011110 10100010110101000110011110011010 00000001000011111001100101111011 11111100000101110100111100001010 11000010110000101110101100010110"""
             #x = x.split(' ')
-            
+            (a,b,c,d,e,f,g,h) = [bin(i)[2:] for i in (h0,h1,h2,h3,h4,h5,h6,h7)]
+            (a,b,c,d,e,f,g,h) = [('0'*32)[0:(32-len(i))]+i for i in (a,b,c,d,e,f,g,h)] # acrescentar 0 para o total de len() = 32
+    	
             chunk32 = [ single_chunk[i:i+32] for i in range(0, len(single_chunk), 32) ] #Dividir em chunks de 32
 
             for i in range(0,64-len(chunk32)): chunk32.append('0'*32) # acrescentar 0 para o total de len() = 32
@@ -41,7 +57,7 @@ def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-
                 chunk32[i] = bin((int(chunk32[i-16],2) + s0 + int(chunk32[i-7],2) + s1) % (2**32))[2:]
                 chunk32[i] = ('0'*(32-len(chunk32[i])))+chunk32[i]
 
-            (a,b,c,d,e,f,g,h) = (h0,h1,h2,h3,h4,h5,h6,h7)
+            
 
             for i in range(0,64):   #parte 2 calculo sha256
                 s1 = int(rotate(e,6),2) ^ int(rotate(e,11),2) ^ int(rotate(e,25),2)
@@ -79,16 +95,20 @@ def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-
                 #print(h == h1)
 
             #print(hex(int(a,2)),hex(int(b,2)),hex(int(c,2)),hex(int(d,2)),hex(int(e,2)),hex(int(f,2)),hex(int(g,2)),hex(int(h,2)))
-            h0 = (int(h0,2) + int(a,2)) % (2**32)
-            h1 = (int(h1,2) + int(b,2)) % (2**32)
-            h2 = (int(h2,2) + int(c,2)) % (2**32)
-            h3 = (int(h3,2) + int(d,2)) % (2**32)
-            h4 = (int(h4,2) + int(e,2)) % (2**32)
-            h5 = (int(h5,2) + int(f,2)) % (2**32)
-            h6 = (int(h6,2) + int(g,2)) % (2**32)
-            h7 = (int(h7,2) + int(h,2)) % (2**32)
-        hashfinal = hex(h0)[2:] +hex(h1)[2:]+hex(h2)[2:]+hex(h3)[2:]+hex(h4)[2:]+hex(h5)[2:]+hex(h6)[2:]+hex(h7)[2:]
-        print(hashfinal.upper())
+            
+            h0 = (h0 + int(a,2)) % (2**32)
+            h1 = (h1 + int(b,2)) % (2**32)
+            h2 = (h2 + int(c,2)) % (2**32)
+            h3 = (h3 + int(d,2)) % (2**32)
+            h4 = (h4 + int(e,2)) % (2**32)
+            h5 = (h5 + int(f,2)) % (2**32)
+            h6 = (h6 + int(g,2)) % (2**32)
+            h7 = (h7 + int(h,2)) % (2**32)
+            
+        hashfinal = hex(h0),hex(h1),hex(h2),hex(h3),hex(h4),hex(h5),hex(h6),hex(h7)
+        hashfinal = formathash(hashfinal)
+        return hashfinal
+        #print(hashfinal.upper())
 
     bits = [ tobin(ord(x)) for x in string ] # iterar a string passada e encaminhar pra funcao tobin
 
@@ -103,6 +123,17 @@ def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-
 
     bits += '0'*(64-len(tobin(start_bits_len))) + tobin(start_bits_len) #adiciona o tamanho total no final dos bits e preenche.
 
-    message_Schedule(bits)
+    return message_Schedule(bits)
 
-sha256('hello world')
+for i in range(1,100):
+    #z = ''.join(choice(ascii_lowercase) for k in range(i))
+    z='guqsjkovkzukppdsadsadsadadadad213w21dsadsadsadddddsajdjasj9dsadaskkdas'
+    print(sha256(str(z)) == shamodule(bytes(z.encode())).hexdigest())
+    print(sha256(str(z)))
+    input()
+    #if sha256(str(z)) != shamodule(bytes(z.encode())).hexdigest():
+    #    print(z)
+    #    print(sha256(z))
+    #    print(shamodule(bytes(z.encode())).hexdigest())
+    #    input()
+    #    print(z)
