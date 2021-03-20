@@ -78,8 +78,17 @@ def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-
                 #print(g == g1)
                 #print(h == h1)
 
-            print(hex(int(a,2)),hex(int(b,2)),hex(int(c,2)),hex(int(d,2)),hex(int(e,2)),hex(int(f,2)),hex(int(g,2)),hex(int(h,2)))
-            #initial_hash_values
+            #print(hex(int(a,2)),hex(int(b,2)),hex(int(c,2)),hex(int(d,2)),hex(int(e,2)),hex(int(f,2)),hex(int(g,2)),hex(int(h,2)))
+            h0 = (int(h0,2) + int(a,2)) % (2**32)
+            h1 = (int(h1,2) + int(b,2)) % (2**32)
+            h2 = (int(h2,2) + int(c,2)) % (2**32)
+            h3 = (int(h3,2) + int(d,2)) % (2**32)
+            h4 = (int(h4,2) + int(e,2)) % (2**32)
+            h5 = (int(h5,2) + int(f,2)) % (2**32)
+            h6 = (int(h6,2) + int(g,2)) % (2**32)
+            h7 = (int(h7,2) + int(h,2)) % (2**32)
+        hashfinal = hex(h0)[2:] +hex(h1)[2:]+hex(h2)[2:]+hex(h3)[2:]+hex(h4)[2:]+hex(h5)[2:]+hex(h6)[2:]+hex(h7)[2:]
+        print(hashfinal.upper())
 
     bits = [ tobin(ord(x)) for x in string ] # iterar a string passada e encaminhar pra funcao tobin
 
