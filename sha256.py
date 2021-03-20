@@ -34,7 +34,7 @@ def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-
                 
                 chunk32[i] = bin((int(chunk32[i-16],2) + s0 + int(chunk32[i-7],2) + s1) % (2**32))[2:]
                 chunk32[i] = ('0'*(32-len(chunk32[i])))+chunk32[i]
-
+            
                
     bits = [ tobin(ord(x)) for x in string ] # iterar a string passada e encaminhar pra funcao tobin
 
