@@ -7,7 +7,7 @@ initial_hash_values = [hex(int(modf(i**(1/2))[0] * (1 << 32)))
 initial_round_constants = [hex(int(modf(i**(1/3))[0] * (1 << 32))) 
                         for i in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311]]
 
-def sha256(string): # https://qvault.io/2020/07/08/how-sha-2-works-step-by-step-sha-256/
+def sha256(string): 
     def tobin(num): # transformar int em binario e preencher por 8, ou seja, tobin(10), 10 em binario é 1010, ele retornará 00001010.
         return ('00000000'[len(bin(num)[2:]):] 
                 + bin(num)[2:])
