@@ -9,4 +9,4 @@ Por enquanto é uma base para mostrar e salvar os arquivos e scripts.
 ### Todas Dependencias (atuais):
 hashlib  
 secrets  
-
+math
