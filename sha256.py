@@ -1,5 +1,10 @@
-from math import ceil,modf
+from math import ceil
 
+def modf(x):
+    z= [i for i in str(x).split('.')][::-1]
+    z[0] = '0.'+z[0]
+    z = [float(i) for i in z]
+    return z
 
 initial_hash_values = [hex(int(modf(i**(1/2))[0] * (1 << 32))) 
                         for i in [2,3,5,7,11,13,17,19]]
