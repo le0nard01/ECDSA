@@ -14,8 +14,7 @@ initial_round_constants = [hex(int(modf(i**(1/3))[0] * (1 << 32)))
 
 def encode(string,tipo='str'): 
     def tobin(num): # transformar int em binario e preencher por 8, ou seja, tobin(10), 10 em binario é 1010, ele retornará 00001010.
-        return ('00000000'[len(bin(num)[2:]):] 
-                + bin(num)[2:])
+        return bin(num)[2:].zfill(8)
 
     def rotate(data,tam): 
         if type(data) == int:
